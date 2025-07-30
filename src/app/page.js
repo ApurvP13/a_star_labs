@@ -1,90 +1,111 @@
 "use client";
-// src/components/LoadingScreen.tsx
-import { useEffect, useRef, useState } from "react";
+
+import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
 
-// Assume the SVGs are in /assets/astar-svgs named svg1.svg to svg15.svg
-const svgs = Array.from(
-  { length: 15 },
-  (_, i) => `/assets/astar-svgs/svg${i + 2}.svg`
-);
-
-export default function LoadingScreen() {
-  const [phase, setPhase] = useState("loading");
+const SvgLoadingAnimation = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
   const [showText, setShowText] = useState(false);
-  const [starReplaced, setStarReplaced] = useState(false);
-  const [labsVisible, setLabsVisible] = useState(false);
-  const containerRef = useRef(null);
-  const starRef = useRef(null);
+  const svgRef = useRef(null);
+  const textRef = useRef(null);
+
+  const svgs = Array.from(
+    { length: 15 },
+    (_, i) => `/assets/astar-svgs/svg${i + 2}.svg`
+  );
 
   useEffect(() => {
-    let ctx = gsap.context(() => {
-      const tl = gsap.timeline();
+    if (!svgRef.current) return;
 
-      // Flash all 15 SVGs one after another quickly
-      tl.to({}, { duration: 0.3 });
-      svgs.forEach((_, i) => {
-        tl.set(
-          containerRef.current,
+    // Set initial state
+    gsap.set(svgRef.current, { opacity: 0, scale: 1 });
+
+    // Create timeline for the entire sequence
+    const tl = gsap.timeline({
+      repeat: 0,
+      onComplete: () => {
+        // Hide SVG and show text when animation completes
+        gsap.to(svgRef.current, { opacity: 0, duration: 0.2 });
+        setShowText(true);
+        console.log("text set to show");
+      },
+    });
+
+    // Calculate sine curve timing for each SVG
+    svgs.forEach((_, index) => {
+      // Sine curve: fast at start, slow at end
+      const progress = index / (svgs.length - 1); // 0 to 1
+      const sineValue = Math.sin((progress * Math.PI) / 2); // 0 to 1 following sine curve
+      const duration = 0.05 + sineValue * 0.25; // Start at 0.05s, end at 0.3s
+
+      tl.call(() => setCurrentIndex(index))
+        .to(svgRef.current, {
+          opacity: 1,
+          duration: duration * 0.3,
+          ease: "power2.out",
+        })
+        .to(
+          svgRef.current,
           {
-            backgroundImage: `url(${svgs[i]})`,
-            backgroundSize: "contain",
-            backgroundRepeat: "no-repeat",
-            backgroundPosition: "center",
+            opacity: 0,
+            duration: duration * 0.3,
+            ease: "power2.in",
           },
-          `+=0.3`
+          `+=${duration * 0.4}`
         );
-      });
+    });
 
-      // After flashing, switch to final text
-      tl.call(() => setPhase("final"));
-      tl.to({}, { duration: 1 });
-      tl.call(() => setShowText(true));
-
-      // Spin * and morph to "Star"
-      tl.to(starRef.current, {
-        rotation: 360,
-        duration: 1,
-        ease: "power2.inOut",
-      });
-      tl.call(() => setStarReplaced(true));
-
-      // Slide text up and fade in Labs
-      tl.to(containerRef.current, {
-        y: -100,
-        duration: 0.8,
-        ease: "power2.out",
-      });
-      tl.call(() => setLabsVisible(true));
-    }, containerRef);
-
-    return () => ctx.revert();
+    return () => {
+      tl.kill();
+    };
   }, []);
 
-  return (
-    <div className="w-full h-screen flex flex-col items-center justify-center bg-[#fffafa] overflow-hidden">
-      <div
-        ref={containerRef}
-        className="w-full h-40 flex items-center justify-center"
-      >
-        {phase === "loading" && (
-          <div className="w-40 h-20 bg-center bg-no-repeat bg-contain" />
-        )}
+  // Separate useEffect to handle text animation after showText becomes true
+  useEffect(() => {
+    if (showText && textRef.current) {
+      const tl = gsap.timeline();
 
+      // 1. Fade in "A STAR" at the center
+      tl.fromTo(
+        textRef.current,
+        { opacity: 0, y: 20, letterSpacing: "0em" }, // Start with 0 opacity, slightly below center, no extra letter spacing
+        { opacity: 1, y: 0, duration: 0.8, ease: "back.out(1.7)" }
+      )
+        // 2. Slide "A STAR" upwards and increase letter tracking simultaneously
+        .to(textRef.current, {
+          y: -window.innerHeight * 0.35, // Move to top area
+          letterSpacing: "1em", // Adjust this value for desired wider tracking
+          duration: 1,
+          ease: "power2.inOut",
+          delay: 0.5, // Start sliding/tracking animation after a short delay from initial fade-in
+        });
+    }
+  }, [showText]);
+
+  return (
+    <div className="w-screen h-screen bg-white flex items-center justify-center overflow-hidden">
+      <div className="flex items-center justify-center bg-white relative">
+        {!showText && (
+          <img
+            ref={svgRef}
+            src={svgs[currentIndex]}
+            alt="Loading..."
+            className="w-16 h-16 object-contain"
+            style={{ opacity: 0 }}
+          />
+        )}
         {showText && (
-          <h1
-            className="text-5xl font-bold text-black flex gap-2 items-center"
-            style={{ fontFamily: "sans-serif" }} // Replace later with your custom font
+          <div
+            ref={textRef}
+            className="text-9xl font-bold text-gray-800" // Simplified class names as no individual span animation
+            style={{ opacity: 0, letterSpacing: "0em" }} // Initial state for GSAP to animate from
           >
-            A
-            <span ref={starRef} className="inline-block">
-              {starReplaced ? "Star" : "*"}
-            </span>
-          </h1>
+            A STAR
+          </div>
         )}
       </div>
-
-      {labsVisible && <p className="text-xl text-black mt-4 fade-in">Labs</p>}
     </div>
   );
-}
+};
+
+export default SvgLoadingAnimation;
