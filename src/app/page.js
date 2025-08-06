@@ -2,12 +2,16 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import { gsap } from "gsap";
+import HeroSection from "./components/HeroSection";
+
+// Import your HeroSection component
+// import { HeroSection } from "./HeroSection"; // Adjust path as needed
 
 const SvgLoadingAnimation = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [showText, setShowText] = useState(false);
+  const [showHero, setShowHero] = useState(false);
   const svgRef = useRef(null);
-  const textRef = useRef(null);
+  const heroRef = useRef(null);
 
   const svgs = Array.from(
     { length: 15 },
@@ -24,10 +28,10 @@ const SvgLoadingAnimation = () => {
     const tl = gsap.timeline({
       repeat: 0,
       onComplete: () => {
-        // Hide SVG and show text when animation completes
+        // Hide SVG and show hero when animation completes
         gsap.to(svgRef.current, { opacity: 0, duration: 0.2 });
-        setShowText(true);
-        console.log("text set to show");
+        setShowHero(true);
+        console.log("hero set to show");
       },
     });
 
@@ -60,32 +64,32 @@ const SvgLoadingAnimation = () => {
     };
   }, []);
 
-  // Separate useEffect to handle text animation after showText becomes true
+  // Separate useEffect to handle hero animation after showHero becomes true
   useEffect(() => {
-    if (showText && textRef.current) {
-      const tl = gsap.timeline();
-
-      // 1. Fade in "A STAR" at the center
-      tl.fromTo(
-        textRef.current,
-        { opacity: 0, y: 20, letterSpacing: "0em" }, // Start with 0 opacity, slightly below center, no extra letter spacing
-        { opacity: 1, y: 0, duration: 0.8, ease: "back.out(1.7)" }
-      )
-        // 2. Slide "A STAR" upwards and increase letter tracking simultaneously
-        .to(textRef.current, {
-          y: -window.innerHeight * 0.35, // Move to top area
-          letterSpacing: "1em", // Adjust this value for desired wider tracking
+    if (showHero && heroRef.current) {
+      // Animate the hero section entrance
+      gsap.fromTo(
+        heroRef.current,
+        {
+          opacity: 0,
+          y: 30,
+          scale: 0.95,
+        },
+        {
+          opacity: 1,
+          y: 0,
+          scale: 1,
           duration: 1,
-          ease: "power2.inOut",
-          delay: 0.5, // Start sliding/tracking animation after a short delay from initial fade-in
-        });
+          ease: "power2.out",
+        }
+      );
     }
-  }, [showText]);
+  }, [showHero]);
 
   return (
     <div className="w-screen h-screen bg-white flex items-center justify-center overflow-hidden">
-      <div className="flex items-center justify-center bg-white relative">
-        {!showText && (
+      <div className="flex items-center justify-center bg-white relative w-full h-full">
+        {!showHero && (
           <img
             ref={svgRef}
             src={svgs[currentIndex]}
@@ -94,13 +98,12 @@ const SvgLoadingAnimation = () => {
             style={{ opacity: 0 }}
           />
         )}
-        {showText && (
-          <div
-            ref={textRef}
-            className="text-9xl font-bold text-gray-800" // Simplified class names as no individual span animation
-            style={{ opacity: 0, letterSpacing: "0em" }} // Initial state for GSAP to animate from
-          >
-            A STAR
+        {showHero && (
+          <div ref={heroRef} className="w-full h-full" style={{ opacity: 0 }}>
+            {/* Replace this comment with your HeroSection component */}
+            <HeroSection />
+
+            {/* Temporary placeholder - remove this when you add HeroSection */}
           </div>
         )}
       </div>

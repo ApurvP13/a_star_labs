@@ -1,9 +1,23 @@
 import { Geist, Geist_Mono } from "next/font/google";
+import { New_Rocker } from "next/font/google";
+import { Bodoni_Moda } from "next/font/google";
 import "./globals.css";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
   subsets: ["latin"],
+});
+
+const newRocker = New_Rocker({
+  variable: "--font-new-rocker",
+  subsets: ["latin"],
+  weight: ["400"],
+});
+
+const bodoniModa = Bodoni_Moda({
+  variable: "--font-bodoni-moda",
+  subsets: ["latin"],
+  weight: ["variable"],
 });
 
 const geistMono = Geist_Mono({
@@ -20,7 +34,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${geistSans.variable} ${geistMono.variable} ${newRocker.variable} ${bodoniModa.variable} antialiased`}
       >
         {children}
       </body>
