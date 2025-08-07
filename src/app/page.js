@@ -72,8 +72,8 @@ const SvgLoadingAnimation = () => {
         heroRef.current,
         {
           opacity: 0,
-          y: 30,
-          scale: 0.95,
+          y: 0,
+          scale: 1,
         },
         {
           opacity: 1,
@@ -88,7 +88,7 @@ const SvgLoadingAnimation = () => {
 
   return (
     <div className="w-screen h-screen bg-black flex items-center justify-center overflow-hidden">
-      <div className="flex items-center justify-center bg-black relative w-full h-full">
+      <div className="flex items-center justify-center bg-white relative w-full h-full">
         {!showHero && (
           <img
             ref={svgRef}

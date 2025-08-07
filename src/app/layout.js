@@ -1,11 +1,12 @@
 import { Geist, Geist_Mono } from "next/font/google";
 import { New_Rocker } from "next/font/google";
-import { Bodoni_Moda } from "next/font/google";
+import { Bodoni_Moda, Inter } from "next/font/google";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
+  weight: ["variable"],
 });
 
 const newRocker = New_Rocker({
@@ -34,7 +35,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} ${newRocker.variable} ${bodoniModa.variable} antialiased`}
+        className={`${inter.variable} ${geistMono.variable} ${newRocker.variable} ${bodoniModa.variable} antialiased`}
       >
         {children}
       </body>
